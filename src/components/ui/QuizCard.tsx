@@ -28,12 +28,12 @@ export function QuizCard() {
   const isMulti = currentQ.type === "multiple";
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-3 sm:px-4 py-16 sm:py-20 pointer-events-auto max-w-3xl mx-auto w-full">
+    <div className="relative z-10 flex flex-col items-center justify-center h-full max-h-[100dvh] px-3 sm:px-4 py-14 pointer-events-auto max-w-3xl mx-auto w-full overflow-hidden">
       {/* Top Floating Progress & Info Bar */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full mb-6 glass-panel rounded-2xl p-4 border border-white/10 flex flex-col gap-2.5 shadow-xl"
+        className="w-full mb-3 sm:mb-4 glass-panel rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col gap-2 shadow-xl bg-slate-950/80 flex-shrink-0"
       >
         <div className="flex items-center justify-between text-xs sm:text-sm font-semibold">
           <span className="flex items-center gap-2 text-slate-300">
@@ -65,67 +65,64 @@ export function QuizCard() {
           animate={{ opacity: 1, scale: 1, x: 0 }}
           exit={{ opacity: 0, scale: 0.95, x: -20 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full glass-panel glass-panel-glow-red rounded-3xl p-6 sm:p-8 border border-white/15 relative overflow-hidden"
+          className="w-full glass-panel glass-panel-glow-red rounded-3xl p-5 sm:p-7 border border-white/15 relative overflow-y-auto max-h-[72dvh] bg-slate-950/85 shadow-2xl"
         >
           {/* Question Header */}
-          <div className="space-y-2 mb-6">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              <HelpCircle className="w-4 h-4 text-amber-400" />
-              <span>{isMulti ? "Multiple Choice (Select all that apply)" : "Single Choice (Select 1 option)"}</span>
+          <div className="space-y-1.5 pb-4 border-b border-white/10">
+            <div className="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider">
+              <HelpCircle className="w-4 h-4" />
+              <span>{isMulti ? "Select All That Apply" : "Choose Your Preferred Option"}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-snug">
               {currentQ.questionText}
-            </h2>
+            </h3>
           </div>
 
-          {/* 4 Interactive 3D Options Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-8">
-            {currentQ.options.map((opt, optIdx) => {
-              const isSelected = currentSelected.includes(opt.text);
-              const optionLetters = ["A", "B", "C", "D"];
+          {/* Options Grid (4 Tactile Option Cards) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+            {currentQ.options.map((option, idx) => {
+              const isSelected = currentSelected.includes(option.text);
+              const letter = ["A", "B", "C", "D"][idx] || `${idx + 1}`;
 
               return (
-                <motion.button
-                  key={opt.id || optIdx}
-                  type="button"
-                  whileHover={{ scale: 1.015 }}
-                  whileTap={{ scale: 0.985 }}
-                  onMouseEnter={() => sound.playHover()}
-                  onClick={() => selectOption(currentQ.id, opt.text, isMulti)}
-                  className={`group relative text-left p-4 rounded-2xl border transition-all duration-200 flex items-start gap-3.5 option-card ${
+                <div
+                  key={option.id || idx}
+                  onClick={() => selectOption(currentQ.id, option.text, isMulti)}
+                  onMouseEnter={sound.playHover}
+                  className={`option-card p-4 rounded-2xl border flex items-start gap-3.5 cursor-pointer select-none transition-all ${
                     isSelected
                       ? "option-card-selected"
-                      : "bg-slate-900/60 border-white/10 hover:border-white/25 hover:bg-slate-800/60"
+                      : "bg-slate-900/70 border-white/10 hover:border-red-500/40 text-slate-300 hover:text-white"
                   }`}
                 >
-                  {/* Option Badge A / B / C / D */}
                   <div
-                    className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition-colors ${
+                    className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 transition-all ${
                       isSelected
-                        ? "bg-red-600 text-white shadow-lg shadow-red-600/40"
-                        : "bg-slate-800 text-slate-400 group-hover:text-white group-hover:bg-slate-700"
+                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
+                        : "bg-slate-800 text-slate-400"
                     }`}
                   >
-                    {isSelected ? <Check className="w-4 h-4 stroke-[3]" /> : optionLetters[optIdx]}
+                    {isSelected ? <Check className="w-4 h-4" /> : letter}
                   </div>
 
-                  {/* Option Text */}
-                  <span className="text-sm sm:text-base font-medium text-slate-200 group-hover:text-white pt-1 leading-snug">
-                    {opt.text}
-                  </span>
-                </motion.button>
+                  <div className="flex-1">
+                    <p className={`text-xs sm:text-sm font-semibold leading-relaxed ${isSelected ? "text-white" : ""}`}>
+                      {option.text}
+                    </p>
+                  </div>
+                </div>
               );
             })}
           </div>
 
           {/* Navigation Controls */}
-          <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between gap-4 pt-3 border-t border-white/10">
             {/* Previous Button */}
             <button
               type="button"
               onClick={prevQuestion}
               disabled={currentQuestionIndex === 0}
-              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 currentQuestionIndex === 0
                   ? "opacity-30 cursor-not-allowed text-slate-500"
                   : "glass-panel text-slate-300 hover:text-white hover:border-white/25"
@@ -140,9 +137,9 @@ export function QuizCard() {
               type="button"
               onClick={nextQuestion}
               disabled={!hasSelection || isSubmitting}
-              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-sm sm:text-base font-bold text-white transition-all ${
+              className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white transition-all ${
                 hasSelection && !isSubmitting
-                  ? "btn-3d-red shadow-xl"
+                  ? "btn-3d-red shadow-xl cursor-pointer"
                   : "opacity-40 cursor-not-allowed bg-slate-800 border border-white/10"
               }`}
             >

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration, DepthOfField } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { StageLighting } from "./StageLighting";
 import { ParticleField } from "./ParticleField";
@@ -13,18 +13,28 @@ import { useQuiz } from "@/context/QuizContext";
 
 export function SceneContainer() {
   const { stage, currentQuestionIndex } = useQuiz();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 150);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+    <div
+      className={`absolute inset-0 w-full h-full pointer-events-none z-0 transition-opacity duration-700 ease-out ${
+        isLoaded ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <Canvas
         camera={{ position: [0, 0, 6.0], fov: 45, near: 0.1, far: 100 }}
         gl={{
-          antialias: false, // Turned off for post-processing performance
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.25,
+          toneMappingExposure: 1.2,
+          antialias: false,
         }}
-        dpr={[1, 1.5]} // Cap DPR at 1.5 for smooth 60fps
+        dpr={[1, 1.5]} // Performance optimized DPR
       >
         <Suspense fallback={null}>
           <StageLighting />
@@ -33,22 +43,16 @@ export function SceneContainer() {
           <IcatEmblem3D stage={stage} />
           <CameraRig stage={stage} questionIndex={currentQuestionIndex} />
 
-          {/* Cinematic Post Processing Effects */}
-          <EffectComposer enableNormalPass={false} multisampling={4}>
-            <DepthOfField
-              focusDistance={0.0}
-              focalLength={0.02}
-              bokehScale={2}
-              height={480}
-            />
+          {/* High-Performance Post Processing */}
+          <EffectComposer enableNormalPass={false} multisampling={0}>
             <Bloom
-              luminanceThreshold={0.4}
-              luminanceSmoothing={0.9}
-              intensity={1.3}
+              luminanceThreshold={0.45}
+              luminanceSmoothing={0.85}
+              intensity={1.2}
               mipmapBlur
             />
             <ChromaticAberration
-              offset={new THREE.Vector2(0.0012, 0.0012)}
+              offset={new THREE.Vector2(0.001, 0.001)}
               radialModulation={true}
               modulationOffset={0.4}
             />

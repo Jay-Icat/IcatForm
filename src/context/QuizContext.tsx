@@ -16,6 +16,10 @@ interface StudentInfoState {
 interface QuizContextType {
   stage: ExperienceStage;
   setStage: (stage: ExperienceStage) => void;
+  introPhase: 1 | 2 | 3 | 4;
+  setIntroPhase: (phase: 1 | 2 | 3 | 4) => void;
+  introProgress: number;
+  setIntroProgress: React.Dispatch<React.SetStateAction<number>>;
   questions: Question[];
   currentQuestionIndex: number;
   studentInfo: StudentInfoState;
@@ -39,6 +43,9 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
 export function QuizProvider({ children }: { children: React.ReactNode }) {
   const [stage, setStage] = useState<ExperienceStage>("intro");
+  const [introPhase, setIntroPhase] = useState<1 | 2 | 3 | 4>(1);
+  const [introProgress, setIntroProgress] = useState<number>(0);
+
   const [questions, setQuestions] = useState<Question[]>(DEFAULT_QUESTIONS);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [studentInfo, setStudentInfo] = useState<StudentInfoState>({
@@ -121,7 +128,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   };
 
   const prevQuestion = () => {
-    sound.playTransition();
+    sound.playClick();
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
@@ -132,30 +139,33 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
     sound.playSuccess();
 
     try {
-      const leadPayload: StudentLead = {
+      const leadData: StudentLead = {
         fullName: studentInfo.fullName,
         phoneNumber: studentInfo.phoneNumber,
         gender: studentInfo.gender,
         birthday: studentInfo.birthday,
-        createdAt: new Date().toISOString(),
         answers: answers,
-        completedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
       };
-      await submitStudentLead(leadPayload);
-    } catch (err) {
-      console.error("Submission failed", err);
+
+      await submitStudentLead(leadData);
+      setStage("finale");
+    } catch (e) {
+      console.error("Failed to submit lead", e);
+      setStage("finale");
     } finally {
       setIsSubmitting(false);
-      setStage("finale");
     }
   };
 
   const restartExperience = () => {
-    sound.playTransition();
-    setStage("intro");
+    sound.playClick();
     setCurrentQuestionIndex(0);
     setAnswers({});
     setStudentInfo({ fullName: "", phoneNumber: "", gender: "Male", birthday: "" });
+    setIntroPhase(1);
+    setIntroProgress(0);
+    setStage("intro");
   };
 
   return (
@@ -163,6 +173,10 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
       value={{
         stage,
         setStage,
+        introPhase,
+        setIntroPhase,
+        introProgress,
+        setIntroProgress,
         questions,
         currentQuestionIndex,
         studentInfo,

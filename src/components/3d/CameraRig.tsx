@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ExperienceStage } from "@/types/quiz";
+import { useQuiz } from "@/context/QuizContext";
 
 interface CameraRigProps {
   stage: ExperienceStage;
@@ -11,70 +12,55 @@ interface CameraRigProps {
 }
 
 export function CameraRig({ stage, questionIndex }: CameraRigProps) {
-  const { camera } = useThree();
-  const targetPos = useRef(new THREE.Vector3(0, 0, 6.0));
-  const targetLook = useRef(new THREE.Vector3(0, 0, 0));
-  const introStartTime = useRef<number | null>(null);
+  const { introPhase } = useQuiz();
+  const { camera, size } = useThree();
+  const isMobile = size.width < 768;
+  const mobileCamZ = isMobile ? 1.0 : 0.0;
 
-  useEffect(() => {
-    if (stage === "intro") {
-      introStartTime.current = null;
-    }
-  }, [stage]);
+  const targetPos = useRef(new THREE.Vector3(0, 0, 4.8));
+  const targetLook = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame((state, delta) => {
     const time = state.clock.elapsedTime;
-    if (introStartTime.current === null && stage === "intro") {
-      introStartTime.current = time;
-    }
 
     if (stage === "intro") {
-      const elapsed = time - (introStartTime.current || time);
-      
-      // Anime Cinematic Camera Opening Choreography:
-      // Starts with wide dynamic arc, zooms closer with speed into the glowing emblem
-      if (elapsed < 1.5) {
-        // Phase 1: High angle sweeping in
-        const progress = elapsed / 1.5;
-        const camZ = THREE.MathUtils.lerp(8.0, 5.8, progress);
-        const camX = Math.sin(elapsed * 2) * 1.5 * (1 - progress);
-        const camY = THREE.MathUtils.lerp(1.2, 0.4, progress);
-        targetPos.current.set(camX, camY, camZ);
-        targetLook.current.set(0, 0.2, 0);
-      } else if (elapsed < 3.5) {
-        // Phase 2: Dramatic heroic focus on 3D emblem with slight breathing orbit
-        const camX = Math.sin(time * 0.8) * 0.4;
-        const camY = 0.3 + Math.cos(time * 0.6) * 0.15;
-        targetPos.current.set(camX, camY, 5.2);
-        targetLook.current.set(0, 0.2, 0);
+      if (introPhase === 1) {
+        // Act 1: Full Brand Logo Framing
+        const camX = Math.sin(time * 0.4) * 0.12;
+        const camY = Math.cos(time * 0.4) * 0.08;
+        targetPos.current.set(camX, camY, 4.8 + mobileCamZ);
+        targetLook.current.set(0, 0, 0);
+      } else if (introPhase === 2) {
+        // Act 2: 3D Emblem Hero Framing with subtle cinematic orbit
+        const camX = Math.sin(time * 0.5) * 0.2;
+        const camY = Math.cos(time * 0.4) * 0.1;
+        targetPos.current.set(camX, camY, 4.7 + mobileCamZ);
+        targetLook.current.set(0, 0, 0);
       } else {
-        // Phase 3: Preparing for warp dive in +Z direction
-        targetPos.current.set(0, 0.3, 4.8);
-        targetLook.current.set(0, 0.2, 0);
+        // Act 3: Framing headline and crowning emblem
+        targetPos.current.set(0, 0.1, 4.6 + mobileCamZ);
+        targetLook.current.set(0, 0.1, 0);
       }
     } else if (stage === "lead_form") {
-      // Form view: Camera positioned nicely with emblem floating in background
-      targetPos.current.set(0, 0.5, 5.0);
-      targetLook.current.set(0, 0.2, 0);
+      targetPos.current.set(0, 0.3, 4.8 + mobileCamZ);
+      targetLook.current.set(0, 0.1, 0);
     } else if (stage === "quiz") {
-      // Dynamic camera path orbit per question index
-      const angle = (questionIndex % 4) * 0.28 - 0.42;
-      const camX = Math.sin(angle) * 1.4;
-      const camY = 0.35 + (questionIndex % 2 === 0 ? 0.2 : -0.15);
-      const camZ = 4.6;
+      const angle = (questionIndex % 4) * 0.22 - 0.33;
+      const camX = Math.sin(angle) * (isMobile ? 0.5 : 1.0);
+      const camY = 0.25 + (questionIndex % 2 === 0 ? 0.1 : -0.08);
+      const camZ = 4.4 + mobileCamZ;
       targetPos.current.set(camX, camY, camZ);
       targetLook.current.set(0, 0.1, 0);
     } else if (stage === "finale") {
-      targetPos.current.set(0, 0.9, 6.2);
-      targetLook.current.set(0, 0.4, 0);
+      targetPos.current.set(0, 0.6, 5.2 + mobileCamZ);
+      targetLook.current.set(0, 0.2, 0);
     }
 
     // Pointer / touch floating parallax
-    const floatX = state.pointer.x * 0.35;
-    const floatY = state.pointer.y * 0.25;
+    const floatX = state.pointer.x * (isMobile ? 0.1 : 0.2);
+    const floatY = state.pointer.y * (isMobile ? 0.06 : 0.15);
 
-    // Smooth dampening towards target coordinates
-    const dampSpeed = stage === "intro" ? 4.5 : 3.0;
+    const dampSpeed = stage === "intro" ? 4.0 : 3.0;
     camera.position.x = THREE.MathUtils.damp(
       camera.position.x,
       targetPos.current.x + floatX,

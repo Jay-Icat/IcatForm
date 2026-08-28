@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "ICAT College of Design & Media | 3D Interactive Experience",
   description: "Experience next-generation design, animation, game art, and media education in full 3D interactive glory at ICAT College.",
+  icons: {
+    icon: "/icat-emblem.png",
+    shortcut: "/icat-emblem.png",
+    apple: "/icat-emblem.png",
+  },
 };
 
 export default function RootLayout({
@@ -13,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-[#050814] text-slate-100 min-h-screen overflow-x-hidden select-none cursor-none">
+      <body className="antialiased bg-[#050814] text-slate-100 min-h-screen overflow-x-hidden">
         {children}
       </body>
     </html>

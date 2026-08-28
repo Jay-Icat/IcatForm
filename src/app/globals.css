@@ -17,7 +17,7 @@ body {
 
 /* Custom Glassmorphism Panels */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -40,6 +40,42 @@ body {
   background: rgba(30, 41, 59, 0.95);
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
   outline: none;
+}
+
+/* Animated Amoeba Morphing Border */
+@keyframes amoeba-morph {
+  0% {
+    border-radius: 28px 22px 30px 18px / 22px 28px 20px 26px;
+  }
+  25% {
+    border-radius: 20px 30px 22px 26px / 26px 20px 28px 22px;
+  }
+  50% {
+    border-radius: 30px 18px 26px 22px / 20px 26px 22px 28px;
+  }
+  75% {
+    border-radius: 22px 26px 18px 30px / 28px 22px 26px 20px;
+  }
+  100% {
+    border-radius: 28px 22px 30px 18px / 22px 28px 20px 26px;
+  }
+}
+
+@keyframes amoeba-aura-spin {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.amoeba-border {
+  animation: amoeba-morph 8s ease-in-out infinite;
+}
+
+.amoeba-aura {
+  animation: amoeba-morph 8s ease-in-out infinite, amoeba-aura-spin 12s linear infinite;
 }
 
 /* Tactile 3D Buttons & UI Elements */

@@ -2,6 +2,7 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { AnimatePresence, motion } from "framer-motion";
 import { QuizProvider, useQuiz } from "@/context/QuizContext";
 import { Navbar } from "@/components/ui/Navbar";
 import { IntroScreen } from "@/components/ui/IntroScreen";
@@ -30,26 +31,75 @@ function ExperienceContent() {
 
   return (
     <div 
-      className="relative min-h-screen w-full overflow-hidden bg-[#050814]"
+      className="fixed inset-0 w-full h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#050814] select-none"
       onClick={initAudio}
     >
       <CustomCursor />
+      
       {/* 3D WebGL Scene in the Background */}
       <SceneContainer />
 
       {/* Top Floating Glass Navigation */}
       <Navbar />
 
-      {/* Dynamic Overlay per Experience Stage */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col justify-center pointer-events-none">
-        {/* Pointer events none on container so clicks pass through to initAudio, but pointer-events-auto on children */}
-        <div className="pointer-events-auto flex flex-col items-center justify-center w-full min-h-screen">
-          {stage === "intro" && <IntroScreen />}
-          {stage === "lead_form" && <LeadFormCard />}
-          {stage === "quiz" && <QuizCard />}
-          {stage === "finale" && <FinaleScreen />}
+      {/* Main Viewport Locked Dynamic Overlay with Smooth Transition */}
+      <main className="relative z-10 w-full h-[100dvh] flex flex-col justify-center items-center pointer-events-none overflow-hidden">
+        <div className="pointer-events-auto w-full h-full flex flex-col items-center justify-center overflow-hidden">
+          <AnimatePresence mode="wait">
+            {stage === "intro" && (
+              <motion.div
+                key="intro-stage"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 1.04, filter: "blur(6px)" }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="w-full h-full flex flex-col items-center justify-center"
+              >
+                <IntroScreen />
+              </motion.div>
+            )}
+
+            {stage === "lead_form" && (
+              <motion.div
+                key="lead_form-stage"
+                initial={{ opacity: 0, scale: 0.94, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(6px)" }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4"
+              >
+                <LeadFormCard />
+              </motion.div>
+            )}
+
+            {stage === "quiz" && (
+              <motion.div
+                key="quiz-stage"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.03, filter: "blur(6px)" }}
+                transition={{ duration: 0.45, ease: "easeInOut" }}
+                className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4"
+              >
+                <QuizCard />
+              </motion.div>
+            )}
+
+            {stage === "finale" && (
+              <motion.div
+                key="finale-stage"
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4"
+              >
+                <FinaleScreen />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

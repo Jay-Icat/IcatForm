@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Lock, ShieldAlert, KeyRound, ArrowRight, Home, Unlock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Lock, ShieldAlert, KeyRound, ArrowRight, Home, Unlock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { sound } from "@/lib/sound";
 
