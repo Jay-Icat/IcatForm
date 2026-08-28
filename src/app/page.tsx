@@ -8,6 +8,8 @@ import { IntroScreen } from "@/components/ui/IntroScreen";
 import { LeadFormCard } from "@/components/ui/LeadFormCard";
 import { QuizCard } from "@/components/ui/QuizCard";
 import { FinaleScreen } from "@/components/ui/FinaleScreen";
+import { AudioProvider, useAudio } from "@/context/AudioContext";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 
 // Dynamically import 3D Canvas with ssr disabled to guarantee clean WebGL GPU mounting
 const SceneContainer = dynamic(
@@ -24,9 +26,14 @@ const SceneContainer = dynamic(
 
 function ExperienceContent() {
   const { stage } = useQuiz();
+  const { initAudio } = useAudio();
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#050814]">
+    <div 
+      className="relative min-h-screen w-full overflow-hidden bg-[#050814]"
+      onClick={initAudio}
+    >
+      <CustomCursor />
       {/* 3D WebGL Scene in the Background */}
       <SceneContainer />
 
@@ -34,11 +41,14 @@ function ExperienceContent() {
       <Navbar />
 
       {/* Dynamic Overlay per Experience Stage */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col justify-center">
-        {stage === "intro" && <IntroScreen />}
-        {stage === "lead_form" && <LeadFormCard />}
-        {stage === "quiz" && <QuizCard />}
-        {stage === "finale" && <FinaleScreen />}
+      <div className="relative z-10 w-full min-h-screen flex flex-col justify-center pointer-events-none">
+        {/* Pointer events none on container so clicks pass through to initAudio, but pointer-events-auto on children */}
+        <div className="pointer-events-auto flex flex-col items-center justify-center w-full min-h-screen">
+          {stage === "intro" && <IntroScreen />}
+          {stage === "lead_form" && <LeadFormCard />}
+          {stage === "quiz" && <QuizCard />}
+          {stage === "finale" && <FinaleScreen />}
+        </div>
       </div>
     </div>
   );
@@ -46,8 +56,10 @@ function ExperienceContent() {
 
 export default function HomePage() {
   return (
-    <QuizProvider>
-      <ExperienceContent />
-    </QuizProvider>
+    <AudioProvider>
+      <QuizProvider>
+        <ExperienceContent />
+      </QuizProvider>
+    </AudioProvider>
   );
 }

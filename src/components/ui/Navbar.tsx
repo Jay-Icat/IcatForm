@@ -10,15 +10,18 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 w-full z-40 px-4 sm:px-8 py-4 flex items-center justify-between pointer-events-auto">
-      {/* Brand Title Pill */}
-      <div className="flex items-center gap-3 glass-panel px-4 py-2 rounded-full border border-white/10 shadow-lg">
-        <div className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
-        <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-200">
-          ICAT 3D EXPERIENCE
-        </span>
-        <span className="hidden sm:inline text-xs text-slate-400 border-l border-slate-700 pl-2">
-          Design & Media
-        </span>
+      {/* Prominent Non-Overlapping ICAT Brand Name */}
+      <div className="flex items-center gap-4">
+        <div className="relative group cursor-pointer">
+          <div className="absolute inset-0 bg-red-600/30 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            ICAT
+          </h1>
+        </div>
+        <div className="hidden sm:flex flex-col border-l border-white/20 pl-4">
+          <span className="text-xs font-semibold tracking-[0.2em] text-red-400 uppercase">Design & Media</span>
+          <span className="text-[10px] text-slate-500 uppercase tracking-widest">Interactive Experience</span>
+        </div>
       </div>
 
       {/* Action Controls */}

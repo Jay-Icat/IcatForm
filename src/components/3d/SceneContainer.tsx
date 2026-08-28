@@ -2,7 +2,7 @@
 
 import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, ChromaticAberration, DepthOfField } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { StageLighting } from "./StageLighting";
 import { ParticleField } from "./ParticleField";
@@ -18,12 +18,12 @@ export function SceneContainer() {
       <Canvas
         camera={{ position: [0, 0, 5.5], fov: 45, near: 0.1, far: 100 }}
         gl={{
-          antialias: true,
+          antialias: false, // Turn off antialias if using postprocessing for better perf
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.1,
+          toneMappingExposure: 1.2,
         }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]} // Cap DPR at 1.5 for performance
       >
         <Suspense fallback={null}>
           <StageLighting />
@@ -32,22 +32,28 @@ export function SceneContainer() {
           <CameraRig stage={stage} questionIndex={currentQuestionIndex} />
 
           {/* Post Processing Effects for High-End 3D Visuals */}
-          <EffectComposer enableNormalPass={false}>
+          <EffectComposer enableNormalPass={false} multisampling={4}>
+            <DepthOfField
+              focusDistance={0.0}
+              focalLength={0.02}
+              bokehScale={2}
+              height={480}
+            />
             <Bloom
-              luminanceThreshold={0.65}
+              luminanceThreshold={0.5}
               luminanceSmoothing={0.9}
-              intensity={0.7}
+              intensity={1.2}
               mipmapBlur
             />
             <ChromaticAberration
-              offset={new THREE.Vector2(0.0008, 0.0008)}
+              offset={new THREE.Vector2(0.001, 0.001)}
               radialModulation={true}
-              modulationOffset={0.5}
+              modulationOffset={0.4}
             />
             <Vignette
               eskil={false}
-              offset={0.15}
-              darkness={stage === "finale" ? 1.4 : 0.95}
+              offset={0.1}
+              darkness={stage === "finale" ? 1.5 : 1.1}
             />
           </EffectComposer>
         </Suspense>
