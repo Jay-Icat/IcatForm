@@ -37,7 +37,7 @@ export function FinaleScreen() {
   }, []);
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-24 pointer-events-auto max-w-4xl mx-auto">
+    <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-3 sm:px-4 py-16 sm:py-20 pointer-events-auto max-w-4xl mx-auto w-full">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -112,12 +112,10 @@ export function FinaleScreen() {
           {/* Restart Experience Button */}
           <button
             onClick={restartExperience}
-            className="group relative w-full sm:w-auto overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-blue-600 p-[2px] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-red-600/30"
+            className="btn-3d-red px-8 py-3.5 rounded-2xl flex items-center justify-center gap-2.5 text-sm sm:text-base font-bold text-white shadow-xl"
           >
-            <div className="flex items-center justify-center gap-2.5 rounded-[14px] bg-slate-950/90 px-8 py-3.5 text-sm sm:text-base font-bold text-white transition-colors group-hover:bg-transparent">
-              <RotateCcw className="w-4 h-4 transition-transform group-hover:-rotate-90" />
-              <span>Explore Again (Restart)</span>
-            </div>
+            <RotateCcw className="w-4 h-4" />
+            <span>Explore Again (Restart)</span>
           </button>
         </div>
 

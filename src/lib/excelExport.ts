@@ -24,6 +24,8 @@ export function exportLeadsToExcel(leads: StudentLead[], questions: Question[]) 
       "Submission Time (IST)": formattedDate,
       "Student Name": lead.fullName,
       "Phone Number": lead.phoneNumber,
+      "Gender": lead.gender || "Not Specified",
+      "Date of Birth": lead.birthday || "Not Specified",
     };
 
     if (lead.email) {

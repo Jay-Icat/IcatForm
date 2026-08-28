@@ -19,6 +19,8 @@ export interface StudentLead {
   id?: string;
   fullName: string;
   phoneNumber: string;
+  gender?: string;
+  birthday?: string;
   email?: string;
   createdAt: string; // ISO string
   answers: Record<string, string[]>; // questionId -> array of selected option texts or IDs

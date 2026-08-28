@@ -6,20 +6,27 @@ import { DEFAULT_QUESTIONS } from "@/lib/defaultQuestions";
 import { fetchQuestions, submitStudentLead } from "@/lib/firebase";
 import { sound } from "@/lib/sound";
 
+interface StudentInfoState {
+  fullName: string;
+  phoneNumber: string;
+  gender?: string;
+  birthday?: string;
+}
+
 interface QuizContextType {
   stage: ExperienceStage;
   setStage: (stage: ExperienceStage) => void;
   questions: Question[];
   currentQuestionIndex: number;
-  studentInfo: { fullName: string; phoneNumber: string };
-  setStudentInfo: React.Dispatch<React.SetStateAction<{ fullName: string; phoneNumber: string }>>;
+  studentInfo: StudentInfoState;
+  setStudentInfo: React.Dispatch<React.SetStateAction<StudentInfoState>>;
   answers: Record<string, string[]>;
   isMuted: boolean;
   isLoading: boolean;
   isSubmitting: boolean;
   toggleMute: () => void;
   startLeadForm: () => void;
-  submitLeadAndStartQuiz: (name: string, phone: string) => void;
+  submitLeadAndStartQuiz: (name: string, phone: string, gender?: string, birthday?: string) => void;
   selectOption: (questionId: string, optionText: string, isMulti: boolean) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
@@ -34,9 +41,11 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   const [stage, setStage] = useState<ExperienceStage>("intro");
   const [questions, setQuestions] = useState<Question[]>(DEFAULT_QUESTIONS);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [studentInfo, setStudentInfo] = useState<{ fullName: string; phoneNumber: string }>({
+  const [studentInfo, setStudentInfo] = useState<StudentInfoState>({
     fullName: "",
     phoneNumber: "",
+    gender: "Male",
+    birthday: "",
   });
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -65,14 +74,13 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   };
 
   const startLeadForm = () => {
-    sound.playClick();
-    sound.playTransition();
+    sound.playWarpDrive();
     setStage("lead_form");
   };
 
-  const submitLeadAndStartQuiz = (fullName: string, phoneNumber: string) => {
+  const submitLeadAndStartQuiz = (fullName: string, phoneNumber: string, gender?: string, birthday?: string) => {
     sound.playSuccess();
-    setStudentInfo({ fullName, phoneNumber });
+    setStudentInfo({ fullName, phoneNumber, gender, birthday });
     setCurrentQuestionIndex(0);
     setAnswers({});
     setStage("quiz");
@@ -127,6 +135,8 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
       const leadPayload: StudentLead = {
         fullName: studentInfo.fullName,
         phoneNumber: studentInfo.phoneNumber,
+        gender: studentInfo.gender,
+        birthday: studentInfo.birthday,
         createdAt: new Date().toISOString(),
         answers: answers,
         completedAt: new Date().toISOString(),
@@ -145,7 +155,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
     setStage("intro");
     setCurrentQuestionIndex(0);
     setAnswers({});
-    setStudentInfo({ fullName: "", phoneNumber: "" });
+    setStudentInfo({ fullName: "", phoneNumber: "", gender: "Male", birthday: "" });
   };
 
   return (

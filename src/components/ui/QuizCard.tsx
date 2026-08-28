@@ -28,7 +28,7 @@ export function QuizCard() {
   const isMulti = currentQ.type === "multiple";
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 pointer-events-auto max-w-3xl mx-auto">
+    <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-3 sm:px-4 py-16 sm:py-20 pointer-events-auto max-w-3xl mx-auto w-full">
       {/* Top Floating Progress & Info Bar */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -140,27 +140,25 @@ export function QuizCard() {
               type="button"
               onClick={nextQuestion}
               disabled={!hasSelection || isSubmitting}
-              className={`group relative overflow-hidden rounded-xl p-[1px] transition-all ${
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-sm sm:text-base font-bold text-white transition-all ${
                 hasSelection && !isSubmitting
-                  ? "bg-gradient-to-r from-red-600 via-red-500 to-blue-600 hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30"
-                  : "opacity-40 cursor-not-allowed bg-slate-800"
+                  ? "btn-3d-red shadow-xl"
+                  : "opacity-40 cursor-not-allowed bg-slate-800 border border-white/10"
               }`}
             >
-              <div className="flex items-center justify-center gap-2 rounded-[11px] bg-slate-950/80 px-6 py-3 text-sm sm:text-base font-bold text-white transition-colors group-hover:bg-transparent">
-                {isSubmitting ? (
-                  <span>Processing...</span>
-                ) : isLastQuestion ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>Complete Assessment</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Next Question</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </>
-                )}
-              </div>
+              {isSubmitting ? (
+                <span>Processing...</span>
+              ) : isLastQuestion ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                  <span>Complete Assessment</span>
+                </>
+              ) : (
+                <>
+                  <span>Next Question</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </div>
         </motion.div>

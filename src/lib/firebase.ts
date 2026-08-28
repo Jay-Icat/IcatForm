@@ -9,6 +9,7 @@ import {
   deleteDoc, 
   query, 
   orderBy,
+  onSnapshot,
   Firestore 
 } from "firebase/firestore";
 import { Question, StudentLead } from "@/types/quiz";
@@ -166,6 +167,39 @@ export async function submitStudentLead(lead: StudentLead): Promise<string> {
   return submissionId;
 }
 
+export async function deleteStudentLead(leadId: string): Promise<void> {
+  if (db && leadId && !leadId.startsWith("lead_")) {
+    try {
+      await deleteDoc(doc(db, "submissions", leadId));
+    } catch (e) {
+      console.warn("Failed to delete lead from Firestore", e);
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const leads = await fetchStudentLeads();
+    const filtered = leads.filter((l) => l.id !== leadId);
+    localStorage.setItem(LS_LEADS_KEY, JSON.stringify(filtered));
+  }
+}
+
+export async function clearAllStudentLeads(): Promise<void> {
+  if (db) {
+    try {
+      const q = query(collection(db, "submissions"));
+      const snapshot = await getDocs(q);
+      const deletePromises = snapshot.docs.map((docSnap) => deleteDoc(doc(db, "submissions", docSnap.id)));
+      await Promise.all(deletePromises);
+    } catch (e) {
+      console.warn("Failed to clear submissions from Firestore", e);
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(LS_LEADS_KEY);
+  }
+}
+
 export async function fetchStudentLeads(): Promise<StudentLead[]> {
   if (db) {
     try {
@@ -194,6 +228,39 @@ export async function fetchStudentLeads(): Promise<StudentLead[]> {
   }
 
   return [];
+}
+
+export function subscribeToStudentLeads(callback: (leads: StudentLead[]) => void): () => void {
+  if (db) {
+    try {
+      const q = query(collection(db, "submissions"), orderBy("createdAt", "desc"));
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const leads = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          })) as StudentLead[];
+          if (typeof window !== "undefined") {
+            localStorage.setItem(LS_LEADS_KEY, JSON.stringify(leads));
+          }
+          callback(leads);
+        },
+        (error) => {
+          console.warn("Real-time Firestore sync error:", error);
+          // Fallback to fetch
+          fetchStudentLeads().then(callback);
+        }
+      );
+      return unsubscribe;
+    } catch (e) {
+      console.warn("Error establishing Firestore listener:", e);
+    }
+  }
+
+  // Fallback
+  fetchStudentLeads().then(callback);
+  return () => {};
 }
 
 export { isFirebaseConfigured };

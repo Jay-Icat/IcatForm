@@ -13,15 +13,14 @@ body {
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
-  user-select: none;
 }
 
 /* Custom Glassmorphism Panels */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(37, 99, 235, 0.15);
 }
 
@@ -30,35 +29,86 @@ body {
 }
 
 .glass-input {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  transition: all 0.25s ease;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: #dc2626;
-  background: rgba(30, 41, 59, 0.85);
-  box-shadow: 0 0 20px rgba(220, 38, 38, 0.35);
+  border-color: #ef4444;
+  background: rgba(30, 41, 59, 0.95);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
   outline: none;
 }
 
-/* Interactive 3D Card Selection */
+/* Tactile 3D Buttons & UI Elements */
+.btn-3d-red {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom: 3px solid #7f1d1d;
+  box-shadow: 0 6px 0 #7f1d1d, 0 14px 25px rgba(220, 38, 38, 0.4);
+  transform: translateY(0);
+  transition: all 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-3d-red:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 7px 0 #7f1d1d, 0 16px 30px rgba(220, 38, 38, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-3d-red:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #7f1d1d, 0 6px 12px rgba(220, 38, 38, 0.3);
+  filter: brightness(0.95);
+}
+
+.btn-3d-emerald {
+  background: linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-bottom: 3px solid #064e3b;
+  box-shadow: 0 6px 0 #064e3b, 0 14px 25px rgba(16, 185, 129, 0.4);
+  transform: translateY(0);
+  transition: all 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-3d-emerald:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 7px 0 #064e3b, 0 16px 30px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-3d-emerald:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #064e3b, 0 6px 12px rgba(16, 185, 129, 0.3);
+  filter: brightness(0.95);
+}
+
+/* 3D Option Card Depth */
 .option-card {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   transform-style: preserve-3d;
+  box-shadow: 0 6px 0 rgba(15, 23, 42, 0.8), 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .option-card:hover {
-  transform: translateY(-2px) scale(1.01);
-  border-color: rgba(220, 38, 38, 0.5);
-  box-shadow: 0 10px 25px rgba(220, 38, 38, 0.2);
+  transform: translateY(-2px);
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 8px 0 rgba(15, 23, 42, 0.9), 0 15px 30px rgba(220, 38, 38, 0.25);
+}
+
+.option-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(15, 23, 42, 0.9), 0 6px 10px rgba(0, 0, 0, 0.3);
 }
 
 .option-card-selected {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(37, 99, 235, 0.25) 100%) !important;
-  border-color: #dc2626 !important;
-  box-shadow: 0 0 30px rgba(220, 38, 38, 0.45) !important;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(37, 99, 235, 0.3) 100%) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 6px 0 #7f1d1d, 0 0 30px rgba(220, 38, 38, 0.45) !important;
 }
 
 /* Glowing Neon Text */
