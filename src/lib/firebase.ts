@@ -126,12 +126,19 @@ export async function submitStudentLead(lead: StudentLead): Promise<string> {
     createdAt: new Date().toISOString(),
   };
 
+  // Generate a clean custom ID based on the user's name
+  // To avoid overwriting users with the exact same name, we append the last 4 digits of their phone
+  const cleanName = lead.fullName.trim().replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
+  const phoneSuffix = lead.phoneNumber ? lead.phoneNumber.slice(-4) : Math.floor(Math.random() * 1000).toString();
+  const customId = `${cleanName}_${phoneSuffix}`;
+
   let submissionId = "offline_lead";
 
   if (db) {
     try {
-      const docRef = await addDoc(collection(db, "submissions"), payload);
-      submissionId = docRef.id;
+      // Use setDoc with our custom ID instead of addDoc
+      await setDoc(doc(db, "submissions", customId), payload);
+      submissionId = customId;
     } catch (e) {
       console.warn("Failed to submit lead to Firestore, saving locally", e);
     }
