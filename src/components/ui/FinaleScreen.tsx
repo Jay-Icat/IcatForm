@@ -37,7 +37,7 @@ export function FinaleScreen() {
   }, []);
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center h-full max-h-[100dvh] px-3 sm:px-4 py-8 pointer-events-auto max-w-4xl mx-auto w-full overflow-hidden">
+    <div className="relative z-10 flex flex-col items-center justify-center h-full px-3 sm:px-4 py-8 pointer-events-auto max-w-4xl mx-auto w-full">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}

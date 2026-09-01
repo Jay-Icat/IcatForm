@@ -31,7 +31,7 @@ function ExperienceContent() {
 
   return (
     <div 
-      className="fixed inset-0 w-full h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#050814] select-none"
+      className="fixed inset-0 w-full h-full overflow-hidden bg-[#050814] select-none"
       onClick={initAudio}
     >
       <CustomCursor />

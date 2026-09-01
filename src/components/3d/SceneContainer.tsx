@@ -63,7 +63,7 @@ export function SceneContainer() {
             />
             
             {/* ChromaticAberration is highly expensive, completely disable on mobile */}
-            {!isMobile && (
+            {isMobile ? null : (
               <ChromaticAberration
                 offset={new THREE.Vector2(0.001, 0.001)}
                 radialModulation={true}

@@ -28,7 +28,7 @@ export function QuizCard() {
   const isMulti = currentQ.type === "multiple";
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-center h-full max-h-[100dvh] px-3 sm:px-4 py-14 pointer-events-auto max-w-3xl mx-auto w-full overflow-hidden">
+    <div className="relative z-10 flex flex-col items-center justify-center h-full px-3 sm:px-4 py-14 pointer-events-auto max-w-3xl mx-auto w-full">
       {/* Top Floating Progress & Info Bar */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

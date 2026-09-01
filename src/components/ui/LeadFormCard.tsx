@@ -16,23 +16,24 @@ export function LeadFormCard() {
   const [birthday, setBirthday] = useState(studentInfo.birthday || "");
   const [error, setError] = useState("");
 
-  // 3D Card Interactive Tilt
+  // 3D Card Interactive Tilt (Optimized with useMotionValue to prevent re-renders)
   const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
+  const rotateX = useRef(0);
+  const rotateY = useRef(0);
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || isMobile) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
-    setRotateX(-(y / rect.height) * 8);
-    setRotateY((x / rect.width) * 8);
+    // We update inline styles directly for ultra-performance, bypassing React State
+    cardRef.current.style.transform = `perspective(1200px) rotateX(${-(y / rect.height) * 8}deg) rotateY(${(x / rect.width) * 8}deg)`;
   };
 
   const handleMouseLeave = () => {
-    setRotateX(0);
-    setRotateY(0);
+    if (!cardRef.current || isMobile) return;
+    cardRef.current.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg)`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,7 +66,7 @@ export function LeadFormCard() {
   };
 
   return (
-    <div className="relative z-10 flex items-center justify-center h-full max-h-[100dvh] px-3 sm:px-4 py-2 max-w-lg mx-auto w-full [perspective:1200px] overflow-hidden">
+    <div className="relative z-10 flex items-center justify-center h-full px-3 sm:px-4 py-2 max-w-lg mx-auto w-full [perspective:1200px]">
       
       {/* 3D Floating Amoeba Form Container (Zero Scrollbars) */}
       <motion.div
@@ -73,8 +74,6 @@ export function LeadFormCard() {
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
-          rotateX,
-          rotateY,
           transformStyle: "preserve-3d",
         }}
         initial={{ opacity: 0, scale: 0.88, y: 30 }}
@@ -87,7 +86,7 @@ export function LeadFormCard() {
         <div className="absolute -inset-[2.5px] rounded-3xl bg-gradient-to-r from-red-600 via-amber-500 to-blue-600 amoeba-aura opacity-80 blur-md pointer-events-none" />
         
         {/* Main Amoeba Glassmorphism Body */}
-        <div className="relative w-full glass-panel rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl backdrop-blur-2xl amoeba-border overflow-hidden bg-slate-950/80">
+        <div className="relative w-full glass-panel rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl backdrop-blur-2xl amoeba-border overflow-y-auto max-h-[85vh] bg-slate-950/80">
           
           {/* Subtle Ambient Background Light */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />

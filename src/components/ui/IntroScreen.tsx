@@ -66,7 +66,7 @@ export function IntroScreen() {
   }, [stage]);
 
   return (
-    <div className="relative z-10 flex flex-col items-center justify-between h-full max-h-[100dvh] pt-16 sm:pt-20 pb-4 sm:pb-6 px-3 sm:px-4 max-w-5xl mx-auto pointer-events-none select-none w-full overflow-hidden">
+    <div className="relative z-10 flex flex-col items-center justify-between h-full pt-16 sm:pt-20 pb-4 sm:pb-6 px-3 sm:px-4 max-w-5xl mx-auto pointer-events-none select-none w-full">
       
       {/* Top Banner Tag (Visible during Phase 3 & 4) */}
       <AnimatePresence>
