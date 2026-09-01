@@ -52,33 +52,44 @@ export function SceneContainer() {
           <IcatEmblem3D stage={stage} />
           <CameraRig stage={stage} questionIndex={currentQuestionIndex} />
 
-          {/* Conditional Post Processing */}
-          <EffectComposer enableNormalPass={false} multisampling={isMobile ? 0 : 4}>
-            <Bloom
-              luminanceThreshold={0.45}
-              luminanceSmoothing={0.85}
-              intensity={isMobile ? 0.8 : 1.2}
-              mipmapBlur={!isMobile} // Disable mipmap blur on mobile for massive speedup
-              resolutionScale={isMobile ? 0.5 : 1.0} // Render bloom at half res on mobile
-            />
-            
-            {/* ChromaticAberration is highly expensive, completely disable on mobile */}
-            {isMobile ? null : (
+          {/* Conditional Post Processing - Separated to prevent EffectComposer graph crashes */}
+          {isMobile ? (
+            <EffectComposer enableNormalPass={false} multisampling={0}>
+              <Bloom
+                luminanceThreshold={0.45}
+                luminanceSmoothing={0.85}
+                intensity={0.8}
+                mipmapBlur={false}
+                resolutionScale={0.5}
+              />
+              <Vignette
+                eskil={false}
+                offset={0.1}
+                darkness={stage === "finale" ? 1.4 : 1.1}
+              />
+            </EffectComposer>
+          ) : (
+            <EffectComposer enableNormalPass={false} multisampling={4}>
+              <Bloom
+                luminanceThreshold={0.45}
+                luminanceSmoothing={0.85}
+                intensity={1.2}
+                mipmapBlur={true}
+                resolutionScale={1.0}
+              />
               <ChromaticAberration
                 offset={new THREE.Vector2(0.001, 0.001)}
                 radialModulation={true}
                 modulationOffset={0.4}
               />
-            )}
-            
-            <Vignette
-              eskil={false}
-              offset={0.1}
-              darkness={stage === "finale" ? 1.4 : 1.1}
-            />
-            
-            <SMAA />
-          </EffectComposer>
+              <Vignette
+                eskil={false}
+                offset={0.1}
+                darkness={stage === "finale" ? 1.4 : 1.1}
+              />
+              <SMAA />
+            </EffectComposer>
+          )}
         </Suspense>
       </Canvas>
     </div>

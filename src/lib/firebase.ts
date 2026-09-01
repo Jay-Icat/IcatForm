@@ -10,6 +10,7 @@ import {
   query, 
   orderBy,
   onSnapshot,
+  writeBatch,
   Firestore 
 } from "firebase/firestore";
 import { Question, StudentLead } from "@/types/quiz";
@@ -55,6 +56,20 @@ export async function fetchQuestions(): Promise<Question[]> {
           id: docSnap.id,
           ...docSnap.data(),
         })) as Question[];
+      } else {
+        // 🔥 Database is completely empty (first run). Seed it with default questions!
+        try {
+          const batch = writeBatch(db);
+          DEFAULT_QUESTIONS.forEach(q => {
+            const docRef = doc(db, "questions", q.id);
+            batch.set(docRef, q);
+          });
+          await batch.commit();
+          console.log("Seeded Firestore with default questions.");
+          return DEFAULT_QUESTIONS;
+        } catch (seedErr) {
+          console.warn("Failed to seed default questions to Firestore", seedErr);
+        }
       }
     } catch (e) {
       console.warn("Error reading from Firestore, using local fallback", e);
