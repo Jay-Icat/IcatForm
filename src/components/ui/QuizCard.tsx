@@ -88,7 +88,7 @@ export function QuizCard() {
                 <div
                   key={option.id || idx}
                   onClick={() => selectOption(currentQ.id, option.text, isMulti)}
-                  onMouseEnter={sound.playHover}
+                  onMouseEnter={() => sound.playHover()}
                   className={`option-card p-4 rounded-2xl border flex items-start gap-3.5 cursor-pointer select-none transition-all ${
                     isSelected
                       ? "option-card-selected"

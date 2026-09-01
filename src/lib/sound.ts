@@ -4,8 +4,25 @@ class SoundFX {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
 
+  private hasInteracted: boolean = false;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      const unlock = () => {
+        this.hasInteracted = true;
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume().catch(() => {});
+        }
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      };
+      window.addEventListener("pointerdown", unlock);
+      window.addEventListener("keydown", unlock);
+    }
+  }
+
   private getContext(): AudioContext | null {
-    if (typeof window === "undefined") return null;
+    if (typeof window === "undefined" || !this.hasInteracted) return null;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
@@ -13,12 +30,12 @@ class SoundFX {
       }
     }
     if (this.ctx && this.ctx.state === "suspended") {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {});
     }
     return this.ctx;
   }
 
-  public playHover() {
+  public playHover = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -43,7 +60,7 @@ class SoundFX {
     }
   }
 
-  public playClick() {
+  public playClick = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -68,7 +85,7 @@ class SoundFX {
     }
   }
 
-  public playSelect() {
+  public playSelect = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -76,11 +93,11 @@ class SoundFX {
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(520, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.08);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.08);
 
-      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
 
       osc.connect(gain);
@@ -88,12 +105,10 @@ class SoundFX {
 
       osc.start();
       osc.stop(ctx.currentTime + 0.08);
-    } catch {
-      // Ignore
-    }
+    } catch {}
   }
 
-  public playTransition() {
+  public playTransition = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -119,7 +134,7 @@ class SoundFX {
   }
 
   // Anime Intro Epic Riser & Power-up
-  public playAnimeRiser() {
+  public playAnimeRiser = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -170,7 +185,7 @@ class SoundFX {
   }
 
   // Sci-Fi Warp Drive +Z Dive
-  public playWarpDrive() {
+  public playWarpDrive = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -226,7 +241,7 @@ class SoundFX {
   }
 
   // Admin Holographic Portal Unlock
-  public playPortalUnlock() {
+  public playPortalUnlock = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -253,7 +268,7 @@ class SoundFX {
     }
   }
 
-  public playSuccess() {
+  public playSuccess = () => {
     if (this.isMuted) return;
     const ctx = this.getContext();
     if (!ctx) return;
@@ -281,7 +296,7 @@ class SoundFX {
     }
   }
 
-  public toggleMute() {
+  public toggleMute = () => {
     this.isMuted = !this.isMuted;
     return this.isMuted;
   }
