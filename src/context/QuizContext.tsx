@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Question, StudentLead, ExperienceStage } from "@/types/quiz";
 import { DEFAULT_QUESTIONS } from "@/lib/defaultQuestions";
-import { fetchQuestions, submitStudentLead } from "@/lib/firebase";
+import { fetchQuestions, submitStudentLead, updateStudentLead } from "@/lib/firebase";
 import { sound } from "@/lib/sound";
 
 interface StudentInfoState {
@@ -28,9 +28,10 @@ interface QuizContextType {
   isMuted: boolean;
   isLoading: boolean;
   isSubmitting: boolean;
+  currentLeadId: string | null;
   toggleMute: () => void;
   startLeadForm: () => void;
-  submitLeadAndStartQuiz: (name: string, phone: string, gender?: string, birthday?: string) => void;
+  submitLeadAndStartQuiz: (name: string, phone: string, gender?: string, birthday?: string) => Promise<void>;
   selectOption: (questionId: string, optionText: string, isMulti: boolean) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
@@ -58,14 +59,17 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [currentLeadId, setCurrentLeadId] = useState<string | null>(null);
 
   const loadQuestions = async () => {
     setIsLoading(true);
     try {
-      const qList = await fetchQuestions();
-      setQuestions(qList.sort((a, b) => a.order - b.order));
+      const q = await fetchQuestions();
+      if (q && q.length > 0) {
+        setQuestions(q.sort((a, b) => a.order - b.order));
+      }
     } catch (e) {
-      console.error("Failed to load questions", e);
+      console.warn("Failed to load questions", e);
     } finally {
       setIsLoading(false);
     }
@@ -85,12 +89,30 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
     setStage("lead_form");
   };
 
-  const submitLeadAndStartQuiz = (fullName: string, phoneNumber: string, gender?: string, birthday?: string) => {
+  const submitLeadAndStartQuiz = async (fullName: string, phoneNumber: string, gender?: string, birthday?: string) => {
     sound.playSuccess();
     setStudentInfo({ fullName, phoneNumber, gender, birthday });
     setCurrentQuestionIndex(0);
     setAnswers({});
-    setStage("quiz");
+    
+    setIsSubmitting(true);
+    try {
+      const leadData: StudentLead = {
+        fullName,
+        phoneNumber,
+        gender,
+        birthday,
+        answers: {},
+        createdAt: new Date().toISOString(),
+      };
+      const leadId = await submitStudentLead(leadData);
+      setCurrentLeadId(leadId);
+    } catch (e) {
+      console.error("Failed to submit initial lead", e);
+    } finally {
+      setIsSubmitting(false);
+      setStage("quiz");
+    }
   };
 
   const selectOption = (questionId: string, optionText: string, isMulti: boolean) => {
@@ -139,19 +161,22 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
     sound.playSuccess();
 
     try {
-      const leadData: StudentLead = {
-        fullName: studentInfo.fullName,
-        phoneNumber: studentInfo.phoneNumber,
-        gender: studentInfo.gender,
-        birthday: studentInfo.birthday,
-        answers: answers,
-        createdAt: new Date().toISOString(),
-      };
-
-      await submitStudentLead(leadData);
+      if (currentLeadId) {
+        await updateStudentLead(currentLeadId, answers);
+      } else {
+        const leadData: StudentLead = {
+          fullName: studentInfo.fullName,
+          phoneNumber: studentInfo.phoneNumber,
+          gender: studentInfo.gender,
+          birthday: studentInfo.birthday,
+          answers: answers,
+          createdAt: new Date().toISOString(),
+        };
+        await submitStudentLead(leadData);
+      }
       setStage("finale");
     } catch (e) {
-      console.error("Failed to submit lead", e);
+      console.error("Failed to submit finished lead", e);
       setStage("finale");
     } finally {
       setIsSubmitting(false);
@@ -185,6 +210,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
         isMuted,
         isLoading,
         isSubmitting,
+        currentLeadId,
         toggleMute,
         startLeadForm,
         submitLeadAndStartQuiz,

@@ -167,6 +167,41 @@ export async function submitStudentLead(lead: StudentLead): Promise<string> {
   return submissionId;
 }
 
+export async function updateStudentLead(leadId: string, answers: Record<string, string[]>): Promise<void> {
+  if (db && leadId && !leadId.startsWith("offline_lead") && !leadId.startsWith("lead_")) {
+    try {
+      await setDoc(doc(db, "submissions", leadId), { answers }, { merge: true });
+    } catch (e) {
+      console.warn("Failed to update lead in Firestore", e);
+    }
+  }
+
+  if (typeof window !== "undefined") {
+    const leads = await fetchStudentLeads();
+    const updated = leads.map(l => l.id === leadId ? { ...l, answers } : l);
+    localStorage.setItem(LS_LEADS_KEY, JSON.stringify(updated));
+    
+    // Attempt re-sync with Google Sheet if needed
+    try {
+      const storedWebhook = localStorage.getItem("icat_gsheet_webhook") || "";
+      const currentQuestions = await fetchQuestions();
+      const updatedLead = updated.find(l => l.id === leadId);
+      if (updatedLead) {
+        fetch("/api/sync-sheet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lead: updatedLead,
+            questions: currentQuestions,
+            webhookUrl: storedWebhook,
+          }),
+        }).catch(() => {});
+      }
+    } catch (e) {}
+  }
+}
+
+
 export async function deleteStudentLead(leadId: string): Promise<void> {
   if (db && leadId && !leadId.startsWith("lead_")) {
     try {

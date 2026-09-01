@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { EffectComposer, Bloom, Vignette, ChromaticAberration } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, ChromaticAberration, SMAA } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { StageLighting } from "./StageLighting";
 import { ParticleField } from "./ParticleField";
@@ -40,7 +40,7 @@ export function SceneContainer() {
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
-          antialias: true, // Enabled for smoother edges (MSAA)
+          antialias: false, // Must be false when using EffectComposer multisampling to prevent flickering on PC/Laptops
         }}
         // Aggressive DPR cap on mobile for performance, higher on desktop
         dpr={isMobile ? [1, 1.15] : [1, 2]} 
@@ -76,6 +76,8 @@ export function SceneContainer() {
               offset={0.1}
               darkness={stage === "finale" ? 1.4 : 1.1}
             />
+            
+            <SMAA />
           </EffectComposer>
         </Suspense>
       </Canvas>

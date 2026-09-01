@@ -207,7 +207,7 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
         {/* ACT 2 & 3: 3D ICAT Emblem Group (Completely Disabled & Scale 0 in Phase 1) */}
         <group ref={emblemCenterRef} position={[0, 0, 0]} scale={[0, 0, 0]} visible={false}>
           {/* Front Emblem Plane */}
-          <mesh position={[0, 0, 0.06]}>
+          <mesh position={[0, 0, 0.08]}>
             <planeGeometry args={[2.5, 2.5]} />
             <meshBasicMaterial
               map={emblemTexture}
@@ -218,7 +218,7 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
           </mesh>
 
           {/* Back Emblem Plane */}
-          <mesh position={[0, 0, -0.06]} rotation={[0, Math.PI, 0]}>
+          <mesh position={[0, 0, -0.08]} rotation={[0, Math.PI, 0]}>
             <planeGeometry args={[2.5, 2.5]} />
             <meshBasicMaterial
               map={emblemTexture}
@@ -250,6 +250,8 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
               emissive="#f59e0b"
               emissiveIntensity={2.5}
               toneMapped={false}
+              transparent={true}
+              depthWrite={false}
             />
           </mesh>
 
@@ -261,6 +263,8 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
               emissive="#dc2626"
               emissiveIntensity={2.0}
               toneMapped={false}
+              transparent={true}
+              depthWrite={false}
             />
           </mesh>
 
