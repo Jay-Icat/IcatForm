@@ -56,9 +56,9 @@ export function CameraRig({ stage, questionIndex }: CameraRigProps) {
       targetLook.current.set(0, 0.2, 0);
     }
 
-    // Pointer / touch floating parallax
-    const floatX = state.pointer.x * (isMobile ? 0.1 : 0.2);
-    const floatY = state.pointer.y * (isMobile ? 0.06 : 0.15);
+    // Pointer / touch floating parallax (Desktop only)
+    const floatX = !isMobile ? state.pointer.x * 0.2 : 0;
+    const floatY = !isMobile ? state.pointer.y * 0.15 : 0;
 
     const dampSpeed = stage === "intro" ? 4.0 : 3.0;
     camera.position.x = THREE.MathUtils.damp(

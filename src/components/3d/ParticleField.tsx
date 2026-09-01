@@ -55,7 +55,10 @@ const fragmentShader = `
 
 export function ParticleField({ stage }: ParticleFieldProps) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const count = 6000;
+  
+  // Use roughly 1500 particles for mobile (huge fill-rate savings), 6000 for desktop
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  const count = isMobile ? 1500 : 6000;
 
   const [positions, colors, scales, randomness] = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -82,7 +85,7 @@ export function ParticleField({ stage }: ParticleFieldProps) {
       col[i * 3 + 1] = mixed.g;
       col[i * 3 + 2] = mixed.b;
       
-      sc[i] = Math.random() * 2.0 + 0.5;
+      sc[i] = (Math.random() * 2.0 + 0.5) * (isMobile ? 1.5 : 1.0);
       
       rand[i * 3] = Math.random() - 0.5;
       rand[i * 3 + 1] = Math.random() - 0.5;

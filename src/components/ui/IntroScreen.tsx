@@ -94,7 +94,7 @@ export function IntroScreen() {
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 1.05, y: -20, filter: "blur(8px)" }}
+              exit={{ opacity: 0, scale: 1.05, y: -20 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="text-center space-y-3 sm:space-y-4 max-w-3xl pointer-events-auto w-full px-2 pt-28 sm:pt-36"
             >

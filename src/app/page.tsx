@@ -51,7 +51,7 @@ function ExperienceContent() {
                 key="intro-stage"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 1.04, filter: "blur(6px)" }}
+                exit={{ opacity: 0, scale: 1.04 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 className="w-full h-full flex flex-col items-center justify-center"
               >
@@ -64,7 +64,7 @@ function ExperienceContent() {
                 key="lead_form-stage"
                 initial={{ opacity: 0, scale: 0.94, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(6px)" }}
+                exit={{ opacity: 0, scale: 0.96, y: -20 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
                 className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4"
               >
@@ -77,7 +77,7 @@ function ExperienceContent() {
                 key="quiz-stage"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.03, filter: "blur(6px)" }}
+                exit={{ opacity: 0, scale: 1.03 }}
                 transition={{ duration: 0.45, ease: "easeInOut" }}
                 className="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4"
               >

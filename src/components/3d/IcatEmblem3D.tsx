@@ -44,9 +44,9 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
 
     const time = state.clock.elapsedTime;
 
-    // Interactive mouse / touch parallax
-    const targetX = (state.pointer.x * Math.PI) / 16;
-    const targetY = (-state.pointer.y * Math.PI) / 18;
+    // Interactive mouse / touch parallax (Desktop only to prevent snapping on touch)
+    const targetX = !isMobile ? (state.pointer.x * Math.PI) / 16 : 0;
+    const targetY = !isMobile ? (-state.pointer.y * Math.PI) / 18 : 0;
 
     groupRef.current.rotation.y = THREE.MathUtils.damp(
       groupRef.current.rotation.y,
@@ -235,12 +235,10 @@ export function IcatEmblem3D({ stage }: IcatEmblem3DProps) {
               color="#0b1120"
               emissive="#1e1b4b"
               emissiveIntensity={0.5}
-              metalness={0.8}
-              roughness={0.15}
-              transmission={0.6}
-              thickness={0.5}
-              clearcoat={1}
-              clearcoatRoughness={0.1}
+              metalness={0.9}
+              roughness={0.2}
+              transparent={true}
+              opacity={0.8}
             />
           </mesh>
 

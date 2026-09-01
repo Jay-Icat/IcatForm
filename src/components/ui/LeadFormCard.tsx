@@ -79,7 +79,7 @@ export function LeadFormCard() {
         }}
         initial={{ opacity: 0, scale: 0.88, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: -20, filter: "blur(6px)" }}
+        exit={{ opacity: 0, scale: 0.95, y: -20 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative w-full rounded-3xl transition-transform duration-200 ease-out overflow-hidden"
       >

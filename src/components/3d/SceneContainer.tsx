@@ -14,10 +14,18 @@ import { useQuiz } from "@/context/QuizContext";
 export function SceneContainer() {
   const { stage, currentQuestionIndex } = useQuiz();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    
     const timer = setTimeout(() => setIsLoaded(true), 150);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
@@ -32,9 +40,10 @@ export function SceneContainer() {
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
-          antialias: false,
+          antialias: true, // Enabled for smoother edges (MSAA)
         }}
-        dpr={[1, 1.5]} // Performance optimized DPR
+        // Aggressive DPR cap on mobile for performance, higher on desktop
+        dpr={isMobile ? [1, 1.15] : [1, 2]} 
       >
         <Suspense fallback={null}>
           <StageLighting />
@@ -43,19 +52,25 @@ export function SceneContainer() {
           <IcatEmblem3D stage={stage} />
           <CameraRig stage={stage} questionIndex={currentQuestionIndex} />
 
-          {/* High-Performance Post Processing */}
-          <EffectComposer enableNormalPass={false} multisampling={0}>
+          {/* Conditional Post Processing */}
+          <EffectComposer enableNormalPass={false} multisampling={isMobile ? 0 : 4}>
             <Bloom
               luminanceThreshold={0.45}
               luminanceSmoothing={0.85}
-              intensity={1.2}
-              mipmapBlur
+              intensity={isMobile ? 0.8 : 1.2}
+              mipmapBlur={!isMobile} // Disable mipmap blur on mobile for massive speedup
+              resolutionScale={isMobile ? 0.5 : 1.0} // Render bloom at half res on mobile
             />
-            <ChromaticAberration
-              offset={new THREE.Vector2(0.001, 0.001)}
-              radialModulation={true}
-              modulationOffset={0.4}
-            />
+            
+            {/* ChromaticAberration is highly expensive, completely disable on mobile */}
+            {!isMobile && (
+              <ChromaticAberration
+                offset={new THREE.Vector2(0.001, 0.001)}
+                radialModulation={true}
+                modulationOffset={0.4}
+              />
+            )}
+            
             <Vignette
               eskil={false}
               offset={0.1}
