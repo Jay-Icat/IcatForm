@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import { Question, StudentLead } from "@/types/quiz";
 
-export function exportLeadsToExcel(leads: StudentLead[], questions: Question[]) {
+export function exportLeadsToExcel(leads: StudentLead[], questions: Question[], teamName?: string) {
   if (!leads || leads.length === 0) {
     alert("No student submissions to export yet.");
     return;
@@ -21,6 +21,7 @@ export function exportLeadsToExcel(leads: StudentLead[], questions: Question[]) 
 
     const rowObj: Record<string, string | number> = {
       "S.No": index + 1,
+      "Team": lead.teamName || teamName || "Campus Admissions",
       "Submission Time (IST)": formattedDate,
       "Student Name": lead.fullName,
       "Phone Number": lead.phoneNumber,
@@ -65,9 +66,12 @@ export function exportLeadsToExcel(leads: StudentLead[], questions: Question[]) 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "ICAT Leads & Responses");
 
-  // Format file name with timestamp
+  // Format file name with clean team name and timestamp
   const dateStr = new Date().toISOString().slice(0, 10);
-  const fileName = `ICAT_College_Quiz_Leads_${dateStr}.xlsx`;
+  const cleanTeamLabel = (teamName || "All")
+    .replace(/[^a-zA-Z0-9]/g, "_")
+    .replace(/_+/g, "_");
+  const fileName = `ICAT_Leads_${cleanTeamLabel}_${dateStr}.xlsx`;
 
   XLSX.writeFile(workbook, fileName);
 }

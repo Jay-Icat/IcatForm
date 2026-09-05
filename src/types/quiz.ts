@@ -25,6 +25,17 @@ export interface StudentLead {
   createdAt: string; // ISO string
   answers: Record<string, string[]>; // questionId -> array of selected option texts or IDs
   completedAt?: string;
+  teamId?: string;
+  teamName?: string;
+}
+
+export interface Team {
+  id: string; // slug / doc ID
+  name: string; // display name e.g. "Animation Team"
+  slug: string; // URL friendly slug e.g. "animation"
+  createdAt: string; // ISO string
+  description?: string;
+  webhookUrl?: string; // Optional custom Google Sheet webhook for this team
 }
 
 export type ExperienceStage = "intro" | "lead_form" | "quiz" | "finale";

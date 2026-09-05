@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { Question, StudentLead, ExperienceStage } from "@/types/quiz";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { Question, StudentLead, ExperienceStage, Team } from "@/types/quiz";
 import { DEFAULT_QUESTIONS } from "@/lib/defaultQuestions";
-import { fetchQuestions, submitStudentLead, updateStudentLead } from "@/lib/firebase";
+import { fetchQuestions, submitStudentLead, updateStudentLead, fetchTeam, DEFAULT_TEAM } from "@/lib/firebase";
 import { sound } from "@/lib/sound";
 
 interface StudentInfoState {
@@ -14,6 +14,8 @@ interface StudentInfoState {
 }
 
 interface QuizContextType {
+  teamId: string;
+  team: Team | null;
   stage: ExperienceStage;
   setStage: (stage: ExperienceStage) => void;
   introPhase: 1 | 2 | 3 | 4;
@@ -42,7 +44,15 @@ interface QuizContextType {
 
 const QuizContext = createContext<QuizContextType | undefined>(undefined);
 
-export function QuizProvider({ children }: { children: React.ReactNode }) {
+interface QuizProviderProps {
+  children: React.ReactNode;
+  teamId?: string;
+}
+
+export function QuizProvider({ children, teamId = "default" }: QuizProviderProps) {
+  const effectiveTeamId = teamId || "default";
+
+  const [team, setTeam] = useState<Team | null>(effectiveTeamId === "default" ? DEFAULT_TEAM : null);
   const [stage, setStage] = useState<ExperienceStage>("intro");
   const [introPhase, setIntroPhase] = useState<1 | 2 | 3 | 4>(1);
   const [introProgress, setIntroProgress] = useState<number>(0);
@@ -61,23 +71,32 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentLeadId, setCurrentLeadId] = useState<string | null>(null);
 
-  const loadQuestions = async () => {
+  const loadQuestions = useCallback(async () => {
     setIsLoading(true);
     try {
-      const q = await fetchQuestions();
-      if (q && q.length > 0) {
-        setQuestions(q.sort((a, b) => a.order - b.order));
+      // Fetch team details and questions in parallel
+      const [tData, qData] = await Promise.all([
+        fetchTeam(effectiveTeamId),
+        fetchQuestions(effectiveTeamId),
+      ]);
+      if (tData) {
+        setTeam(tData);
+      }
+      if (qData && qData.length > 0) {
+        setQuestions(qData.sort((a, b) => a.order - b.order));
+      } else {
+        setQuestions(DEFAULT_QUESTIONS);
       }
     } catch (e) {
-      console.warn("Failed to load questions", e);
+      console.warn(`Failed to load team ${effectiveTeamId} or questions`, e);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [effectiveTeamId]);
 
   useEffect(() => {
     loadQuestions();
-  }, []);
+  }, [loadQuestions]);
 
   const toggleMute = () => {
     const muted = sound.toggleMute();
@@ -103,9 +122,11 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
         gender,
         birthday,
         answers: {},
+        teamId: effectiveTeamId,
+        teamName: team?.name || effectiveTeamId,
         createdAt: new Date().toISOString(),
       };
-      const leadId = await submitStudentLead(leadData);
+      const leadId = await submitStudentLead(leadData, effectiveTeamId);
       setCurrentLeadId(leadId);
     } catch (e) {
       console.error("Failed to submit initial lead", e);
@@ -162,7 +183,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (currentLeadId) {
-        await updateStudentLead(currentLeadId, answers);
+        await updateStudentLead(currentLeadId, answers, effectiveTeamId);
       } else {
         const leadData: StudentLead = {
           fullName: studentInfo.fullName,
@@ -170,9 +191,11 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
           gender: studentInfo.gender,
           birthday: studentInfo.birthday,
           answers: answers,
+          teamId: effectiveTeamId,
+          teamName: team?.name || effectiveTeamId,
           createdAt: new Date().toISOString(),
         };
-        await submitStudentLead(leadData);
+        await submitStudentLead(leadData, effectiveTeamId);
       }
       setStage("finale");
     } catch (e) {
@@ -196,6 +219,8 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   return (
     <QuizContext.Provider
       value={{
+        teamId: effectiveTeamId,
+        team,
         stage,
         setStage,
         introPhase,

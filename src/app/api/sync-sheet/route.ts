@@ -8,6 +8,8 @@ function formatLeadToRow(lead: StudentLead, questions: Question[]): Record<strin
 
   const rowData: Record<string, string> = {
     Timestamp: formattedDate,
+    Team: lead.teamName || lead.teamId || "Campus Admissions",
+    "Team Slug": lead.teamId || "default",
     "Student Name": lead.fullName || "N/A",
     "Phone Number": lead.phoneNumber || "N/A",
     "Gender": lead.gender || "Not Specified",
